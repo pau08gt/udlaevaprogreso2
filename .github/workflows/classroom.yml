@@ -1,0 +1,120 @@
+name: Autograding Tests
+
+'on':
+  - push
+  - repository_dispatch
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Pruebas esContrasenaSegura
+        id: contrasena-segura
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: esContrasenaSegura
+          setup-command: ''
+          command: mvn -B -Dtest=GestorContrasenaSeguraTest test
+          timeout: 10
+          max-score: 15
+
+      - name: Pruebas calcularRiesgo
+        id: calcular-riesgo
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: calcularRiesgo
+          setup-command: ''
+          command: mvn -B -Dtest=GestorCalcularRiesgoTest test
+          timeout: 10
+          max-score: 20
+
+      - name: Pruebas registrarIntento
+        id: registrar-intento
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: registrarIntento
+          setup-command: ''
+          command: mvn -B -Dtest=GestorRegistrarIntentoTest test
+          timeout: 10
+          max-score: 15
+
+      - name: Pruebas existeUsuario
+        id: existe-usuario
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: existeUsuario
+          setup-command: ''
+          command: mvn -B -Dtest=GestorExisteUsuarioTest test
+          timeout: 10
+          max-score: 10
+
+      - name: Pruebas consultarSiguienteRiesgo
+        id: consultar-siguiente-riesgo
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: consultarSiguienteRiesgo
+          setup-command: ''
+          command: mvn -B -Dtest=GestorConsultarSiguienteRiesgoTest test
+          timeout: 10
+          max-score: 10
+
+      - name: Pruebas atenderSiguienteRiesgo
+        id: atender-siguiente-riesgo
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: atenderSiguienteRiesgo
+          setup-command: ''
+          command: mvn -B -Dtest=GestorAtenderSiguienteRiesgoTest test
+          timeout: 10
+          max-score: 15
+
+      - name: Pruebas contarIntentosPendientes
+        id: contar-intentos-pendientes
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: contarIntentosPendientes
+          setup-command: ''
+          command: mvn -B -Dtest=GestorContarIntentosTest test
+          timeout: 10
+          max-score: 5
+
+      - name: Pruebas listarIntentosOrdenados
+        id: listar-intentos-ordenados
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: listarIntentosOrdenados
+          setup-command: ''
+          command: mvn -B -Dtest=GestorListarOrdenadosTest test
+          timeout: 10
+          max-score: 10
+
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          CONTRASENA-SEGURA_RESULTS: "${{ steps.contrasena-segura.outputs.result }}"
+          CALCULAR-RIESGO_RESULTS: "${{ steps.calcular-riesgo.outputs.result }}"
+          REGISTRAR-INTENTO_RESULTS: "${{ steps.registrar-intento.outputs.result }}"
+          EXISTE-USUARIO_RESULTS: "${{ steps.existe-usuario.outputs.result }}"
+          CONSULTAR-SIGUIENTE-RIESGO_RESULTS: "${{ steps.consultar-siguiente-riesgo.outputs.result }}"
+          ATENDER-SIGUIENTE-RIESGO_RESULTS: "${{ steps.atender-siguiente-riesgo.outputs.result }}"
+          CONTAR-INTENTOS-PENDIENTES_RESULTS: "${{ steps.contar-intentos-pendientes.outputs.result }}"
+          LISTAR-INTENTOS-ORDENADOS_RESULTS: "${{ steps.listar-intentos-ordenados.outputs.result }}"
+        with:
+          runners: contrasena-segura,calcular-riesgo,registrar-intento,existe-usuario,consultar-siguiente-riesgo,atender-siguiente-riesgo,contar-intentos-pendientes,listar-intentos-ordenados
